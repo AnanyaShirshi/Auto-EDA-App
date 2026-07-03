@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-EDA — Premium Automated EDA Web Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f8ff',
+                            100: '#ebf1ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        slate: {
+                            950: '#0b0f19'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN (High performance plotting engine) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse CDN for robust async streaming -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-white border-b border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-colors duration-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand and Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-brand-500/20">
+                    <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent dark:from-brand-400 dark:to-indigo-300">
+                        Auto-EDA
+                    </h1>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Automated Data Profiler & Insights Engine</p>
+                </div>
+            </div>
+
+            <!-- Controls and Creator Personalization -->
+            <div class="flex items-center space-x-4">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 focus:outline-none transition-colors" aria-label="Toggle Theme">
+                    <svg id="themeDarkIcon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg id="themeLightIcon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <div class="hidden md:flex flex-col items-end border-l border-slate-200 pl-4 dark:border-slate-800">
+                    <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Workspace Hub</span>
+                    <span class="text-[10px] text-brand-600 dark:text-brand-400 font-extrabold tracking-wider uppercase">Build v2.4 (Core Engine)</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Context -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Notification Banner Container -->
+        <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+        <!-- Global Critical Error Message Box (Shows if parsing crashes completely) -->
+        <div id="criticalErrorBox" class="hidden max-w-3xl mx-auto mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-start gap-3 dark:bg-rose-950/20 dark:border-rose-900/50 dark:text-rose-400 animate-fadeIn">
+            <svg class="w-6 h-6 flex-shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+                <h4 class="font-bold text-sm">Parsing Exception Caught</h4>
+                <p id="criticalErrorMessage" class="text-xs mt-1 opacity-90"></p>
+                <button onclick="dismissCriticalError()" class="mt-2 text-xs font-bold underline hover:opacity-100">Dismiss Alert</button>
+            </div>
+        </div>
+
+        <!-- STAGE 1: Dropzone Dashboard Screen (Shown if no CSV loaded) -->
+        <section id="uploadSection" class="transition-all duration-300 ease-in-out">
+            <div class="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 shadow-md text-center max-w-3xl mx-auto dark:bg-slate-900 dark:border-slate-800">
+                <div class="mx-auto w-16 h-16 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mb-6 dark:bg-brand-900/40 dark:text-brand-400">
+                    <svg class="w-8 h-8 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Automate Your Data Exploration</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-6 max-w-lg mx-auto text-sm leading-relaxed">
+                    Upload any custom CSV file. Our hybrid client-side parsing engine instantly profiles statistics, identifies unique structural constraints, computes correlation matrices, and models analytical variables.
+                </p>
+
+                <!-- Personalization Control Interface -->
+                <div class="max-w-md mx-auto mb-8 bg-slate-50 border border-slate-200 dark:bg-slate-950 dark:border-slate-800 p-4 rounded-xl flex flex-col gap-1 text-left">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Creator</label>
+                    <input type="text" id="creatorBrandingInput" placeholder="e.g. Ananya Shirshi" class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100 font-semibold" value="Ananya Shirshi">
+                </div>
+
+                <!-- Dropzone Area -->
+                <div id="dropzone" class="border-2 border-dashed border-slate-300 rounded-2xl p-10 cursor-pointer hover:border-brand-500 hover:bg-slate-50 transition-all duration-150 bg-slate-50/50 dark:bg-slate-950 dark:border-slate-800 dark:hover:border-brand-400 dark:hover:bg-slate-900 flex flex-col items-center justify-center">
+                    <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+                    <p class="font-semibold text-slate-700 dark:text-slate-300 mb-1">Drag and drop your CSV file here</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500">supports standard CSV files up to 100MB</p>
+                </div>
+
+                <div class="relative flex py-6 items-center">
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">No Dataset Ready?</span>
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                </div>
+
+                <!-- Load Sample Button -->
+                <button onclick="loadSampleData()" class="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    Explore Complex Sample Dataset
+                </button>
+            </div>
+        </section>
+
+        <!-- STAGE 2: Interactive EDA Workspace (Hidden until CSV parsed) -->
+        <section id="workspaceSection" class="hidden space-y-8 animate-fadeIn">
+            
+            <!-- Context Control Toolbar -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-emerald-100 text-emerald-800 p-2.5 rounded-xl dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider" id="brandingHeaderLabel">Active Dataset</span>
+                        <h3 id="loadedFileName" class="text-base font-extrabold text-slate-900 dark:text-white truncate max-w-xs md:max-w-md">data.csv</h3>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button onclick="resetWorkspace()" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 font-bold text-sm rounded-xl transition duration-150">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H18M9 5h7a2 2 0 012 2v10a2 2 0 01-2 2H9"/>
+                        </svg>
+                        Upload Another
+                    </button>
+                    <button onclick="window.print()" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-brand-600 text-white hover:bg-brand-700 font-bold text-sm rounded-xl shadow-md shadow-brand-500/10 transition duration-150">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                        </svg>
+                        Save PDF Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary KPI Dashboard Rows -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Health Profile Index</span>
+                    <div class="flex items-baseline space-x-1.5 mt-2">
+                        <span id="statHealthScore" class="text-3xl font-black text-brand-600 dark:text-brand-400">100%</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Based on diagnostic checks</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Rows Analyzed</span>
+                    <div class="flex items-baseline space-x-1.5 mt-2">
+                        <span id="statRowCount" class="text-3xl font-black text-slate-950 dark:text-white">0</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Full dataset scale scope</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Columns Loaded</span>
+                    <div class="flex items-baseline space-x-1.5 mt-2">
+                        <span id="statColCount" class="text-3xl font-black text-slate-950 dark:text-white">0</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Unique features mapped</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duplicate Rows Found</span>
+                    <div class="flex items-baseline space-x-1.5 mt-2">
+                        <span id="statDuplicateCount" class="text-3xl font-black text-slate-950 dark:text-white">0</span>
+                    </div>
+                    <p id="statDuplicateSub" class="text-[10px] text-slate-400 mt-1">Fully identical data points</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 lg:col-span-1 col-span-2 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Missing Values</span>
+                    <div class="flex items-baseline space-x-1.5 mt-2">
+                        <span id="statMissingPercent" class="text-3xl font-black text-slate-950 dark:text-white">0%</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Total percentage of empty cells</p>
+                </div>
+            </div>
+
+            <!-- Workspace Section Navigation Tabs -->
+            <div class="border-b border-slate-200 dark:border-slate-800 overflow-x-auto">
+                <nav class="flex space-x-8 min-w-[640px]" aria-label="Tabs">
+                    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn border-brand-500 text-brand-600 dark:text-brand-400 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all">
+                        <svg class="w-4.5 h-4.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                        Statistical Profiler
+                    </button>
+                    <button onclick="switchTab('visualize')" id="tab-visualize" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all">
+                        <svg class="w-4.5 h-4.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Visual Chart Laboratory
+                    </button>
+                    <button onclick="switchTab('correlation')" id="tab-correlation" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all">
+                        <svg class="w-4.5 h-4.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                        Correlation Matrix
+                    </button>
+                    <button onclick="switchTab('dataview')" id="tab-dataview" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all">
+                        <svg class="w-4.5 h-4.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        Data Table Explorer
+                    </button>
+                    <button onclick="switchTab('diagnostics')" id="tab-diagnostics" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all">
+                        <svg class="w-4.5 h-4.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        Diagnostics & Health Checklist
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Content Area of Selected Tab -->
+            <div class="mt-4">
+
+                <!-- Tab 1: Column-By-Column Statistical Profile -->
+                <div id="panel-profile" class="panel-content space-y-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden shadow-sm">
+                        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-slate-900 dark:text-white">Dataset Column Profile Schemas</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Automatic schema estimation, missing metrics, and localized statistical variables.</p>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 dark:bg-slate-950 dark:border-slate-800">
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Column Name</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Inferred Type</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Missing Value Density</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Unique Items (Cardinality)</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Descriptive Summary Metrics</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="profileTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Visual Laboratory -->
+                <div id="panel-visualize" class="panel-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Plotting Parameters Card -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm space-y-4 h-fit">
+                        <h4 class="text-base font-bold text-slate-900 dark:text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                            Plot Configuration
+                        </h4>
+                        
+                        <!-- Chart Type -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visualization Layout</label>
+                            <select id="chartTypeSelect" onchange="generateDynamicChart()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-100 text-sm font-semibold">
+                                <option value="bar">Bar Chart (Categorical Aggregations)</option>
+                                <option value="line">Line Graph (Progression/Index)</option>
+                                <option value="scatter">Scatter Plot (Correlation/Bivariate)</option>
+                                <option value="doughnut">Doughnut Chart (Proportional split)</option>
+                            </select>
+                        </div>
+
+                        <!-- X Axis -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Independent Variable (X-Axis)</label>
+                            <select id="xAxisSelect" onchange="generateDynamicChart()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-100 text-sm font-semibold"></select>
+                        </div>
+
+                        <!-- Y Axis -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dependent Variable (Y-Axis)</label>
+                            <select id="yAxisSelect" onchange="generateDynamicChart()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-100 text-sm font-semibold"></select>
+                            <p class="text-[10px] text-slate-400">If plotting Doughnut or simple distributions, leave Y as categorical/None.</p>
+                        </div>
+
+                        <!-- Custom Max Data Range -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Max Row Parsing limit</label>
+                            <input id="chartMaxRows" type="number" value="100" min="5" max="5000" onchange="generateDynamicChart()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-100 text-sm font-semibold">
+                        </div>
+                    </div>
+
+                    <!-- Chart Display Canvas / SVG container -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between h-[520px]">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-base font-bold text-slate-900 dark:text-white">Exploratory Plot Preview</h4>
+                            <span id="chartTypeIndicatorBadge" class="px-2.5 py-1 text-[10px] font-bold bg-indigo-50 text-indigo-700 rounded-full dark:bg-indigo-950/40 dark:text-indigo-400 uppercase tracking-wide">Interactive Render</span>
+                        </div>
+                        <div class="relative flex-grow flex items-center justify-center p-4 min-h-0" id="edaChartOutputContainer">
+                            <canvas id="edaMainCanvas" class="w-full h-full max-h-[380px]"></canvas>
+                            <div id="edaSvgFallbackContainer" class="hidden w-full h-full max-h-[380px] flex flex-col items-center justify-center"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 text-center">Interactive analytics verified. Click or tap parameters to isolate key indices.</div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Pearson Correlation Heatmap -->
+                <div id="panel-correlation" class="panel-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm">
+                        <div class="mb-4">
+                            <h4 class="text-lg font-bold text-slate-900 dark:text-white">Pearson Correlation Matrix ($r$)</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Gauges the linear correlation strength between all identified numeric parameters in a range of $[-1.0, 1.0]$.
+                            </p>
+                        </div>
+
+                        <!-- Heatmap Container -->
+                        <div class="overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-850">
+                            <div id="correlationGridContainer" class="w-full overflow-x-auto">
+                                <!-- Heatmap dynamic table load -->
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="flex flex-wrap items-center justify-center gap-6 mt-6 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-3.5 h-3.5 bg-emerald-600 rounded"></div>
+                                <span>Strong Positive Correlation (+1.0)</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-3.5 h-3.5 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                                <span>Zero Correlation (0.0)</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-3.5 h-3.5 bg-rose-600 rounded"></div>
+                                <span>Strong Negative Correlation (-1.0)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Raw Interactive Data Viewer -->
+                <div id="panel-dataview" class="panel-content hidden space-y-4">
+                    <div class="bg-white rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden shadow-sm">
+                        <!-- Data controls header -->
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="relative w-full sm:max-w-xs">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </span>
+                                <input id="tableSearchInput" oninput="handleTableSearch()" type="text" placeholder="Global search text..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-100 font-medium">
+                            </div>
+                            <div class="flex items-center space-x-2 text-xs font-bold text-slate-500">
+                                <span>View</span>
+                                <select id="tablePageSizeSelect" onchange="handleTablePageSizeChange()" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="10">10 Rows</option>
+                                    <option value="25">25 Rows</option>
+                                    <option value="50">50 Rows</option>
+                                    <option value="100">100 Rows</option>
+                                </select>
+                                <span id="tableRangeSpan">1-10 of 100</span>
+                            </div>
+                        </div>
+
+                        <!-- The raw data matrix table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse font-mono">
+                                <thead id="rawTableHead" class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800">
+                                    <!-- Dynamic header row -->
+                                </thead>
+                                <tbody id="rawTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                    <!-- Dynamic content rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Pagination Navigation -->
+                        <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                            <button id="prevPageBtn" onclick="handlePrevPage()" class="px-3.5 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition disabled:opacity-50">
+                                Previous
+                            </button>
+                            <span id="currentPageSpan" class="text-xs font-bold text-slate-600 dark:text-slate-300">Page 1 of 1</span>
+                            <button id="nextPageBtn" onclick="handleNextPage()" class="px-3.5 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition disabled:opacity-50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Diagnostics Health Checklist -->
+                <div id="panel-diagnostics" class="panel-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-sm space-y-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-slate-900 dark:text-white">Dataset Quality & Health Checklist</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Automatic structural integrity checks, multi-collinearity assessments, and anomalies.</p>
+                        </div>
+
+                        <div id="diagnosticChecklistContainer" class="divide-y divide-slate-100 dark:divide-slate-800 space-y-4">
+                            <!-- Generated Diagnostics via algorithms -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto bg-white border-t border-slate-200 py-6 dark:bg-slate-900 dark:border-slate-800 transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-[11px] text-slate-500 dark:text-slate-400" id="brandingFooterLabel">
+                &copy; 2026 <span class="font-bold text-slate-700 dark:text-slate-300">Auto-EDA Workspace</span>. Prepared by Ananya Shirshi. All computing executed client-side.
+            </p>
+            <div class="flex items-center space-x-6 text-[10px] font-bold text-slate-400 uppercase tracking-wider font-semibold">
+                <span class="hover:text-slate-600 dark:hover:text-slate-200">Responsive Tailwind Engine</span>
+                <span class="hover:text-slate-600 dark:hover:text-slate-200">Offline-First Execution</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Logic Scripting -->
+    <script>
+        // Global State variables
+        let csvRawData = [];       // Array of objects matching header keys
+        let csvHeaders = [];       // Array of column string headers
+        let columnsProfile = {};   // Analytical metadata object per column
+        let activeTab = 'profile'; // Default navigation state
+        let activeChart = null;    // ChartJS active instance wrapper
+
+        // Interactive Raw Table States
+        let filteredData = [];
+        let tablePageSize = 10;
+        let tableCurrentPage = 1;
+
+        // Custom E-commerce Data String embedded for sample exploration
+        const SAMPLE_CSV_STRING = `Product ID,Category,Units Sold,Unit Price,Revenue,Customer Satisfaction,Return Rate,Restock Date
+P-100,Electronics,1420,120.00,170400.00,4.8,0.02,2026-06-15
+P-101,Electronics,850,250.00,212500.00,4.2,0.05,2026-06-18
+P-102,Apparel,2400,25.00,60000.00,3.9,0.12,2026-05-20
+P-103,Apparel,1800,45.00,81000.00,4.5,0.08,2026-05-22
+P-104,Home & Kitchen,1150,75.00,86250.00,4.6,0.03,2026-06-01
+P-105,Home & Kitchen,950,110.00,104500.00,4.1,0.06,2026-06-05
+P-106,Books,3200,15.00,48000.00,4.9,0.01,2026-04-10
+P-107,Books,2100,18.50,38850.00,4.7,0.01,2026-04-12
+P-108,Beauty,1500,35.00,52500.00,4.3,0.04,2026-06-12
+P-109,Beauty,1300,55.00,71500.00,4.0,0.10,2026-06-14
+P-110,Electronics,450,499.00,224550.00,4.4,0.04,2026-06-25
+P-111,Apparel,3100,19.99,61969.00,3.7,0.15,2026-05-28
+P-112,Home & Kitchen,680,189.00,128520.00,4.7,0.02,2026-06-02
+P-113,Books,4100,9.99,40959.00,4.8,0.00,2026-04-18
+P-114,Beauty,820,95.00,77900.00,4.2,0.07,2026-06-19`;
+
+        // Start systems
+        document.addEventListener("DOMContentLoaded", () => {
+            initAppTheme();
+            setupDropzone();
+            setupGlobalDragDropGuards();
+        });
+
+        function setupGlobalDragDropGuards() {
+            // These event preventDefaults completely block browsers from executing automatic file re-downloads if the user misses the exact target area of the drop container
+            window.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            }, false);
+            window.addEventListener("drop", (e) => {
+                e.preventDefault();
+            }, false);
+        }
+
+        // Theme utilities 
+        function initAppTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeDarkIcon').classList.add('hidden');
+                document.getElementById('themeLightIcon').classList.remove('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeLightIcon').classList.add('hidden');
+                document.getElementById('themeDarkIcon').classList.remove('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('themeLightIcon').classList.add('hidden');
+                document.getElementById('themeDarkIcon').classList.remove('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('themeDarkIcon').classList.add('hidden');
+                document.getElementById('themeLightIcon').classList.remove('hidden');
+            }
+        }
+
+        // Show toast alerts in browser
+        function triggerToast(type, headerText, bodyText) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `flex p-4 w-72 rounded-xl shadow-lg border pointer-events-auto transition-transform duration-300 translate-x-80 bg-white dark:bg-slate-900 ${
+                type === 'success' ? 'border-emerald-200 dark:border-emerald-800' : 'border-rose-200 dark:border-rose-800'
+            }`;
+            
+            const iconSvg = type === 'success' ? 
+                `<svg class="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>` : 
+                `<svg class="w-5 h-5 text-rose-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+
+            toast.innerHTML = `
+                ${iconSvg}
+                <div>
+                    <h5 class="text-xs font-bold text-slate-900 dark:text-white">${headerText}</h5>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${bodyText}</p>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-x-80'); }, 50);
+            setTimeout(() => {
+                toast.classList.add('translate-x-80');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 4000);
+        }
+
+        // Global Critical Error handling display
+        function showCriticalError(msg) {
+            const errorBox = document.getElementById('criticalErrorBox');
+            const errorMessage = document.getElementById('criticalErrorMessage');
+            if (errorBox && errorMessage) {
+                errorMessage.textContent = msg;
+                errorBox.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function dismissCriticalError() {
+            const errorBox = document.getElementById('criticalErrorBox');
+            if (errorBox) errorBox.classList.add('hidden');
+        }
+
+        // Clean value converter that strips currencies, percentage symbols, and commas
+        function cleanNumericValue(val) {
+            if (val === undefined || val === null || val === '') return NaN;
+            if (typeof val === 'number') return val;
+            let str = String(val).trim().replace(/[\$,%]/g, '');
+            let num = Number(str);
+            return isNaN(num) ? NaN : num;
+        }
+
+        // Pure JS offline-first CSV Parser
+        function nativeCSVParser(text) {
+            try {
+                let lines = [];
+                let row = [""];
+                let inQuotes = false;
+
+                for (let i = 0; i < text.length; i++) {
+                    let char = text[i];
+                    let nextChar = text[i + 1];
+
+                    if (char === '"') {
+                        if (inQuotes && nextChar === '"') {
+                            row[row.length - 1] += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        row.push('');
+                    } else if ((char === '\r' || char === '\n') && !inQuotes) {
+                        if (char === '\r' && nextChar === '\n') {
+                            i++;
+                        }
+                        lines.push(row);
+                        row = [''];
+                    } else {
+                        row[row.length - 1] += char;
+                    }
+                }
+                if (row.length > 1 || row[0] !== '') {
+                    lines.push(row);
+                }
+
+                if (lines.length < 2) return [];
+
+                // Filter out empty lines or trailing empty rows
+                const cleanLines = lines.filter(l => l.length > 0 && l.some(cell => cell.trim() !== ""));
+                if (cleanLines.length < 1) return [];
+
+                // Normalize header columns (ensure uniqueness)
+                const rawHeaders = cleanLines[0].map(h => h.trim() || 'unnamed_column');
+                const uniqueHeaders = [];
+                rawHeaders.forEach((h, idx) => {
+                    let name = h;
+                    let count = 1;
+                    while (uniqueHeaders.includes(name)) {
+                        name = `${h}_${count}`;
+                        count++;
+                    }
+                    uniqueHeaders.push(name);
+                });
+
+                const data = [];
+                for (let i = 1; i < cleanLines.length; i++) {
+                    const rowValues = cleanLines[i];
+                    const obj = {};
+                    uniqueHeaders.forEach((header, index) => {
+                        let cellVal = rowValues[index] !== undefined ? rowValues[index].trim() : "";
+                        // Auto-inference types for cell values
+                        const numericClean = cleanNumericValue(cellVal);
+                        if (!isNaN(numericClean) && cellVal !== "") {
+                            obj[header] = numericClean;
+                        } else if (cellVal.toLowerCase() === 'true') {
+                            obj[header] = true;
+                        } else if (cellVal.toLowerCase() === 'false') {
+                            obj[header] = false;
+                        } else {
+                            obj[header] = cellVal;
+                        }
+                    });
+                    data.push(obj);
+                }
+                return data;
+            } catch (err) {
+                console.error("Native CSV Parser crashed: ", err);
+                return [];
+            }
+        }
+
+        // Drag-and-drop listener functions
+        function setupDropzone() {
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('csvFileInput');
+
+            if (!dropzone || !fileInput) return;
+
+            dropzone.addEventListener('click', () => fileInput.click());
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.add('border-brand-500', 'bg-slate-100', 'dark:bg-slate-800');
+            });
+            dropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('border-brand-500', 'bg-slate-100', 'dark:bg-slate-800');
+            });
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('border-brand-500', 'bg-slate-100', 'dark:bg-slate-800');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    processCSVFile(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    processCSVFile(files[0]);
+                }
+            });
+        }
+
+        // Sample data direct injection
+        function loadSampleData() {
+            try {
+                // Apply branding parameters instantly on load
+                applyBrandingPersonalization();
+                const fallbackData = nativeCSVParser(SAMPLE_CSV_STRING);
+                if (fallbackData && fallbackData.length > 0) {
+                    executeEDA(fallbackData, "sample_ecommerce_dataset.csv");
+                    triggerToast('success', 'Sample Data Injected', 'Exploratory workspace is ready with sample e-commerce variables.');
+                } else {
+                    showCriticalError("Failed to parse standard embedded sample string data.");
+                }
+            } catch(e) {
+                showCriticalError("Failed to load sample dataset: " + String(e));
+            }
+        }
+
+        // Main CSV file processing routing
+        function processCSVFile(file) {
+            dismissCriticalError();
+            applyBrandingPersonalization();
+
+            if (!file.name.endsWith('.csv')) {
+                triggerToast('error', 'Invalid File Type', 'The selected file is not a verified CSV file format.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                let parsedResult = [];
+
+                // Attempt to run standard PapaParse
+                if (typeof Papa !== 'undefined') {
+                    try {
+                        Papa.parse(text, {
+                            header: true,
+                            dynamicTyping: true,
+                            skipEmptyLines: true,
+                            complete: function(results) {
+                                if (results && results.data && results.data.length > 0) {
+                                    // Sanitize keys
+                                    const cleaned = results.data.filter(r => r && typeof r === 'object' && Object.keys(r).length > 0);
+                                    executeEDA(cleaned, file.name);
+                                    triggerToast('success', 'Exploration Initiated', `Loaded ${cleaned.length} rows successfully.`);
+                                } else {
+                                    // Switch to native parser as fallback
+                                    parsedResult = nativeCSVParser(text);
+                                    if (parsedResult.length > 0) {
+                                        executeEDA(parsedResult, file.name);
+                                        triggerToast('success', 'Exploration (Native Mode)', `Loaded ${parsedResult.length} rows successfully.`);
+                                    } else {
+                                        showCriticalError("Failed to parse this file. Make sure it is a valid, non-empty CSV spreadsheet.");
+                                    }
+                                }
+                            },
+                            error: function(err) {
+                                console.warn("PapaParse threw an error. Switching to fallback parser.");
+                                parsedResult = nativeCSVParser(text);
+                                if (parsedResult.length > 0) {
+                                    executeEDA(parsedResult, file.name);
+                                    triggerToast('success', 'Exploration (Native Mode)', `Loaded ${parsedResult.length} rows.`);
+                                } else {
+                                    showCriticalError("Could not parse file: " + String(err));
+                                }
+                            }
+                        });
+                    } catch(papalErr) {
+                        parsedResult = nativeCSVParser(text);
+                        if (parsedResult.length > 0) {
+                            executeEDA(parsedResult, file.name);
+                        } else {
+                            showCriticalError("Could not parse file. Native reader crashed: " + String(papalErr));
+                        }
+                    }
+                } else {
+                    // PapaParse CDN blocked, use offline safe fallback instantly
+                    parsedResult = nativeCSVParser(text);
+                    if (parsedResult.length > 0) {
+                        executeEDA(parsedResult, file.name);
+                        triggerToast('success', 'Offline Mode Activated', `Built-in parser rendered ${parsedResult.length} rows successfully.`);
+                    } else {
+                        showCriticalError("Online parsing script is blocked, and native parser could not interpret this format.");
+                    }
+                }
+            };
+            
+            reader.onerror = function() {
+                showCriticalError("System FileReader could not open or scan this local document.");
+            };
+            reader.readAsText(file);
+        }
+
+        // Customize layout branding elements based on input
+        function applyBrandingPersonalization() {
+            const inputVal = document.getElementById('creatorBrandingInput').value.trim();
+            const personalBranding = inputVal || "Ananya Shirshi";
+            
+            const headLabel = document.getElementById('brandingHeaderLabel');
+            const footLabel = document.getElementById('brandingFooterLabel');
+
+            if (headLabel) headLabel.textContent = `Active Workspace — Prepared by ${personalBranding}`;
+            if (footLabel) footLabel.innerHTML = `&copy; 2026 <span class="font-bold text-slate-700 dark:text-slate-300">Auto-EDA Workspace</span>. Prepared by ${personalBranding}. All computing executed client-side.`;
+        }
+
+        // Main orchestrator of EDA calculations
+        function executeEDA(data, fileName) {
+            try {
+                if (!Array.isArray(data) || data.length === 0) {
+                    showCriticalError("Spreadsheet structure lacks observable row metrics.");
+                    return;
+                }
+
+                // Strictly clean dataset entries
+                const cleanData = data.filter(r => r && typeof r === 'object');
+                if (cleanData.length === 0) {
+                    showCriticalError("Spreadsheet entries appear empty or corrupt.");
+                    return;
+                }
+
+                csvRawData = cleanData;
+                filteredData = [...cleanData];
+
+                // Gather clean distinct headers
+                const distinctKeys = new Set();
+                cleanData.forEach(row => {
+                    Object.keys(row).forEach(k => {
+                        if (k && k.trim() !== "") distinctKeys.add(k.trim());
+                    });
+                });
+                csvHeaders = Array.from(distinctKeys);
+
+                if (csvHeaders.length === 0) {
+                    showCriticalError("Could not identify column structures inside this CSV.");
+                    return;
+                }
+
+                // Render active UI elements
+                document.getElementById('uploadSection').classList.add('hidden');
+                document.getElementById('workspaceSection').classList.remove('hidden');
+                document.getElementById('loadedFileName').textContent = fileName;
+
+                // Execute profiling phases
+                calculateSummaryKPIs();
+                calculateColumnsAnalyticalProfile();
+                populateProfilingTable();
+                populateVisualDropdowns();
+                initializeRawDataTable();
+                renderDiagnosticsChecklist();
+
+                // Force layout reset to statistical view first
+                switchTab('profile');
+
+            } catch (err) {
+                console.error("Critical EDA Execution Crash: ", err);
+                showCriticalError("An unexpected error occurred during EDA calculations: " + String(err));
+                resetWorkspace();
+            }
+        }
+
+        // Calculate main dashboards stats
+        function calculateSummaryKPIs() {
+            try {
+                const totalRows = csvRawData.length;
+                const totalCols = csvHeaders.length;
+
+                let totalCells = totalRows * totalCols;
+                let missingCount = 0;
+
+                csvRawData.forEach(row => {
+                    csvHeaders.forEach(col => {
+                        const val = row[col];
+                        if (val === undefined || val === null || val === "" || (typeof val === 'number' && isNaN(val))) {
+                            missingCount++;
+                        }
+                    });
+                });
+
+                const missingPercent = totalCells > 0 ? ((missingCount / totalCells) * 100).toFixed(1) : "0.0";
+
+                // Count duplicates
+                const rowSignatures = new Set();
+                let duplicateCount = 0;
+                csvRawData.forEach(row => {
+                    const signature = JSON.stringify(row);
+                    if (rowSignatures.has(signature)) {
+                        duplicateCount++;
+                    } else {
+                        rowSignatures.add(signature);
+                    }
+                });
+
+                // Compute overall health index
+                let healthFactor = 100;
+                const parsedMissing = parseFloat(missingPercent);
+                if (!isNaN(parsedMissing) && parsedMissing > 0) {
+                    healthFactor -= (parsedMissing * 1.5);
+                }
+                if (totalRows > 0 && duplicateCount > 0) {
+                    healthFactor -= ((duplicateCount / totalRows) * 100 * 0.5);
+                }
+                healthFactor = Math.max(10, Math.min(100, Math.round(healthFactor)));
+
+                document.getElementById('statHealthScore').textContent = `${healthFactor}%`;
+                document.getElementById('statRowCount').textContent = totalRows.toLocaleString();
+                document.getElementById('statColCount').textContent = totalCols.toLocaleString();
+                document.getElementById('statDuplicateCount').textContent = duplicateCount.toLocaleString();
+                document.getElementById('statMissingPercent').textContent = `${missingPercent}%`;
+
+                // Color alerts based on quality indexes
+                const duplicateEl = document.getElementById('statDuplicateCount');
+                if (duplicateCount > 0) {
+                    duplicateEl.className = "text-3xl font-black text-amber-500";
+                } else {
+                    duplicateEl.className = "text-3xl font-black text-slate-950 dark:text-white";
+                }
+
+                const missingEl = document.getElementById('statMissingPercent');
+                if (parseFloat(missingPercent) > 5.0) {
+                    missingEl.className = "text-3xl font-black text-rose-500";
+                } else {
+                    missingEl.className = "text-3xl font-black text-slate-950 dark:text-white";
+                }
+            } catch (err) {
+                console.error("Dashboard calculations broke: ", err);
+            }
+        }
+
+        // Formulate schemas per column
+        function calculateColumnsAnalyticalProfile() {
+            try {
+                columnsProfile = {};
+
+                csvHeaders.forEach(col => {
+                    let nullCount = 0;
+                    let nonNullCount = 0;
+                    let parsedNumericValues = [];
+                    let frequencyMap = {};
+                    let uniqueSet = new Set();
+
+                    csvRawData.forEach(row => {
+                        const rawVal = row[col];
+                        if (rawVal === undefined || rawVal === null || rawVal === "" || (typeof rawVal === 'number' && isNaN(rawVal))) {
+                            nullCount++;
+                        } else {
+                            nonNullCount++;
+                            uniqueSet.add(rawVal);
+                            frequencyMap[rawVal] = (frequencyMap[rawVal] || 0) + 1;
+
+                            // Safe clean numerical parsing
+                            const cleanedNum = cleanNumericValue(rawVal);
+                            if (!isNaN(cleanedNum)) {
+                                parsedNumericValues.push(cleanedNum);
+                            }
+                        }
+                    });
+
+                    let inferredType = "Categorical";
+                    const totalObserved = nonNullCount;
+
+                    if (totalObserved > 0) {
+                        // Numeric confidence threshold
+                        if (parsedNumericValues.length / totalObserved > 0.85) {
+                            const distinctSet = new Set(parsedNumericValues);
+                            if (distinctSet.size === 2 && (distinctSet.has(0) || distinctSet.has(1))) {
+                                inferredType = "Boolean";
+                            } else {
+                                inferredType = "Numeric";
+                            }
+                        } else {
+                            // Date format pattern diagnostics
+                            let dateChecks = 0;
+                            let maxChecks = Math.min(totalObserved, 20);
+                            let iterator = Array.from(uniqueSet);
+                            for (let idx = 0; idx < maxChecks; idx++) {
+                                let item = iterator[idx];
+                                if (typeof item === 'string' && !isNaN(Date.parse(item)) && (item.includes('-') || item.includes('/'))) {
+                                    dateChecks++;
+                                }
+                            }
+                            if (dateChecks / maxChecks > 0.7) {
+                                inferredType = "Date";
+                            } else if (uniqueSet.size === 2) {
+                                inferredType = "Boolean";
+                            } else if (uniqueSet.size === totalObserved && totalObserved > 5) {
+                                inferredType = "ID / Distinct Text";
+                            }
+                        }
+                    }
+
+                    // Compute description statistics
+                    let stats = {};
+                    if (inferredType === "Numeric" && parsedNumericValues.length > 0) {
+                        const sorted = [...parsedNumericValues].sort((a,b) => a - b);
+                        const min = sorted[0];
+                        const max = sorted[sorted.length - 1];
+                        const sum = sorted.reduce((acc, c) => acc + c, 0);
+                        const mean = sum / sorted.length;
+
+                        let median = 0;
+                        const half = Math.floor(sorted.length / 2);
+                        if (sorted.length % 2 !== 0) {
+                            median = sorted[half];
+                        } else {
+                            median = (sorted[half - 1] + sorted[half]) / 2.0;
+                        }
+
+                        const sqDiffs = sorted.map(v => Math.pow(v - mean, 2));
+                        const avgSqDiff = sqDiffs.reduce((a, b) => a + b, 0) / sqDiffs.length;
+                        const stdDev = Math.sqrt(avgSqDiff);
+
+                        stats = {
+                            mean: mean.toFixed(2),
+                            median: median.toFixed(2),
+                            std: stdDev.toFixed(2),
+                            min: min.toFixed(2),
+                            max: max.toFixed(2)
+                        };
+                    } else {
+                        let modeVal = "N/A";
+                        let modeFreq = 0;
+                        Object.keys(frequencyMap).forEach(key => {
+                            if (frequencyMap[key] > modeFreq) {
+                                modeFreq = frequencyMap[key];
+                                modeVal = key;
+                            }
+                        });
+
+                        stats = {
+                            mode: modeVal,
+                            frequency: modeFreq,
+                            distributionCount: uniqueSet.size
+                        };
+                    }
+
+                    columnsProfile[col] = {
+                        type: inferredType,
+                        nullCount: nullCount,
+                        totalCount: csvRawData.length,
+                        cardinality: uniqueSet.size,
+                        rawNumbers: parsedNumericValues,
+                        frequencies: frequencyMap,
+                        stats: stats
+                    };
+                });
+            } catch (err) {
+                console.error("Columns analysis crashed: ", err);
+            }
+        }
+
+        // Render Column Profiles inside HTML table
+        function populateProfilingTable() {
+            const body = document.getElementById('profileTableBody');
+            if (!body) return;
+            body.innerHTML = "";
+
+            csvHeaders.forEach(col => {
+                const profile = columnsProfile[col];
+                if (!profile) return;
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition duration-150 text-xs text-slate-700 dark:text-slate-300";
+
+                const missingPercent = profile.totalCount > 0 ? ((profile.nullCount / profile.totalCount) * 100).toFixed(1) : "0.0";
+
+                let summaryHtml = "";
+                if (profile.type === "Numeric" && profile.stats && profile.stats.mean !== undefined) {
+                    summaryHtml = `
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+                            <span><strong class="text-slate-400">Mean:</strong> ${profile.stats.mean}</span>
+                            <span><strong class="text-slate-400">Median:</strong> ${profile.stats.median}</span>
+                            <span><strong class="text-slate-400">Min/Max:</strong> ${profile.stats.min} / ${profile.stats.max}</span>
+                            <span><strong class="text-slate-400">σ:</strong> ${profile.stats.std}</span>
+                        </div>
+                    `;
+                } else if (profile.stats && profile.stats.mode !== undefined) {
+                    summaryHtml = `
+                        <div class="text-[11px]">
+                            <span><strong class="text-slate-400">Mode:</strong> "${profile.stats.mode}" (${profile.stats.frequency} matches)</span>
+                        </div>
+                    `;
+                } else {
+                    summaryHtml = `<span class="text-slate-400">No profile metrics available</span>`;
+                }
+
+                let typeBadgeColor = "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400";
+                if (profile.type === "Numeric") typeBadgeColor = "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400";
+                if (profile.type === "Date") typeBadgeColor = "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400";
+                if (profile.type === "Boolean") typeBadgeColor = "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400";
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-950 dark:text-white">${col}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${typeBadgeColor}">${profile.type}</span>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-slate-900 dark:text-white">${profile.nullCount}</span>
+                            <span class="text-slate-400 text-[10px]">(${missingPercent}%)</span>
+                        </div>
+                    </td>
+                    <td class="p-4 font-semibold text-slate-900 dark:text-white">${profile.cardinality}</td>
+                    <td class="p-4">${summaryHtml}</td>
+                `;
+
+                body.appendChild(tr);
+            });
+        }
+
+        // Populating Visualization configuration options
+        function populateVisualDropdowns() {
+            const xSelect = document.getElementById('xAxisSelect');
+            const ySelect = document.getElementById('yAxisSelect');
+
+            if (!xSelect || !ySelect) return;
+
+            xSelect.innerHTML = "";
+            ySelect.innerHTML = "";
+
+            const emptyYOption = document.createElement('option');
+            emptyYOption.value = "";
+            emptyYOption.textContent = "(None - Frequency distribution Count)";
+            ySelect.appendChild(emptyYOption);
+
+            csvHeaders.forEach(col => {
+                const profile = columnsProfile[col];
+                const typeStr = profile ? profile.type : "Categorical";
+
+                const xOpt = document.createElement('option');
+                xOpt.value = col;
+                xOpt.textContent = `${col} (${typeStr})`;
+                xSelect.appendChild(xOpt);
+
+                const yOpt = document.createElement('option');
+                yOpt.value = col;
+                yOpt.textContent = `${col} (${typeStr})`;
+                ySelect.appendChild(yOpt);
+            });
+
+            // Set default variable configuration
+            const numericCols = csvHeaders.filter(c => columnsProfile[c] && columnsProfile[c].type === "Numeric");
+            const categoricalCols = csvHeaders.filter(c => columnsProfile[c] && (columnsProfile[c].type === "Categorical" || columnsProfile[c].type === "ID / Distinct Text"));
+
+            if (categoricalCols.length > 0) {
+                xSelect.value = categoricalCols[0];
+            } else if (csvHeaders.length > 0) {
+                xSelect.value = csvHeaders[0];
+            }
+
+            if (numericCols.length > 0) {
+                ySelect.value = numericCols[0];
+            }
+        }
+
+        // Fallback SVG-based interactive chart constructor (Ensures UI works even without internet / CDNs)
+        function renderFallbackSvgChart(chartType, xCol, yCol, maxRows) {
+            const container = document.getElementById('edaSvgFallbackContainer');
+            const canvas = document.getElementById('edaMainCanvas');
+            
+            if (!container || !canvas) return;
+            
+            // Hide ChartJS canvas and reveal SVG container
+            canvas.style.display = 'none';
+            container.classList.remove('hidden');
+            container.innerHTML = "";
+
+            const sampledData = csvRawData.slice(0, maxRows);
+            let labels = [];
+            let values = [];
+
+            if (!yCol || yCol === xCol) {
+                // Aggregating observation count
+                const freqMap = columnsProfile[xCol]?.frequencies || {};
+                labels = Object.keys(freqMap).sort((a, b) => freqMap[b] - freqMap[a]).slice(0, 8);
+                values = labels.map(l => freqMap[l]);
+            } else {
+                // Mean aggregations
+                const groups = {};
+                sampledData.forEach(row => {
+                    const xVal = row[xCol];
+                    const yVal = parseFloat(row[yCol]);
+                    if (xVal !== undefined && xVal !== null && !isNaN(yVal)) {
+                        if (!groups[xVal]) {
+                            groups[xVal] = { sum: 0, count: 0 };
+                        }
+                        groups[xVal].sum += yVal;
+                        groups[xVal].count += 1;
+                    }
+                });
+                labels = Object.keys(groups).slice(0, 8);
+                values = labels.map(l => (groups[l].sum / groups[l].count));
+            }
+
+            if (labels.length === 0) {
+                container.innerHTML = `<span class="text-slate-400 text-xs">Insufficient coordinate data to construct plots.</span>`;
+                return;
+            }
+
+            const maxVal = Math.max(...values, 1);
+            let svgMarkup = `<svg viewBox="0 0 500 280" class="w-full h-full text-slate-700 dark:text-slate-300">`;
+
+            if (chartType === "doughnut") {
+                // Draw responsive doughnut
+                let total = values.reduce((a, b) => a + b, 0);
+                let currentAngle = 0;
+                let colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#14b8a6', '#64748b'];
+
+                labels.forEach((l, i) => {
+                    let percent = values[i] / total;
+                    let angle = percent * 360;
+                    
+                    // Arc calculations
+                    let x1 = 250 + 80 * Math.cos((currentAngle - 90) * Math.PI / 180);
+                    let y1 = 120 + 80 * Math.sin((currentAngle - 90) * Math.PI / 180);
+                    let x2 = 250 + 80 * Math.cos((currentAngle + angle - 90) * Math.PI / 180);
+                    let y2 = 120 + 80 * Math.sin((currentAngle + angle - 90) * Math.PI / 180);
+                    
+                    let largeArc = angle > 180 ? 1 : 0;
+                    
+                    svgMarkup += `
+                        <path d="M ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2}" 
+                              fill="none" stroke="${colors[i % colors.length]}" stroke-width="25" 
+                              class="cursor-pointer hover:opacity-80 transition duration-150" />
+                        <!-- Legend keys -->
+                        <rect x="${10 + (i % 4) * 120}" y="${230 + Math.floor(i / 4) * 20}" width="10" height="10" fill="${colors[i % colors.length]}" rx="2" />
+                        <text x="${25 + (i % 4) * 120}" y="${240 + Math.floor(i / 4) * 20}" font-size="8" fill="currentColor" class="font-bold truncate select-none">${l.toString().substring(0, 10)}</text>
+                    `;
+                    currentAngle += angle;
+                });
+            } else {
+                // Draw Bar / Line plots
+                const padLeft = 50;
+                const padBottom = 50;
+                const width = 430;
+                const height = 200;
+
+                // Draw Y axis guidelines
+                for (let i = 0; i <= 4; i++) {
+                    let y = 30 + (i * height / 4);
+                    let v = (maxVal - (i * maxVal / 4)).toFixed(1);
+                    svgMarkup += `
+                        <line x1="${padLeft}" y1="${y}" x2="${padLeft + width}" y2="${y}" stroke="currentColor" stroke-dasharray="3" opacity="0.1" />
+                        <text x="${padLeft - 10}" y="${y + 4}" font-size="8" text-anchor="end" fill="currentColor">${v}</text>
+                    `;
+                }
+
+                // Render visual elements
+                const count = labels.length;
+                const colWidth = width / count;
+
+                labels.forEach((l, i) => {
+                    let x = padLeft + (i * colWidth) + (colWidth / 4);
+                    let barH = (values[i] / maxVal) * height;
+                    let y = 30 + height - barH;
+
+                    if (chartType === "line") {
+                        // Gather points for path drawing
+                        let nextX = i < count - 1 ? padLeft + ((i+1) * colWidth) + (colWidth / 4) + (colWidth/4) : x;
+                        let nextH = i < count - 1 ? (values[i+1] / maxVal) * height : barH;
+                        let nextY = 30 + height - nextH;
+                        svgMarkup += `
+                            <circle cx="${x + colWidth/4}" cy="${y}" r="4" fill="#3b82f6" />
+                            ${i < count - 1 ? `<line x1="${x + colWidth/4}" y1="${y}" x2="${nextX}" y2="${nextY}" stroke="#3b82f6" stroke-width="2" />` : ""}
+                        `;
+                    } else {
+                        // Render standard bar layout
+                        svgMarkup += `
+                            <rect x="${x}" y="${y}" width="${colWidth / 2}" height="${barH}" fill="#4f46e5" rx="3" class="cursor-pointer hover:opacity-90" />
+                        `;
+                    }
+
+                    // Bottom Label
+                    svgMarkup += `
+                        <text x="${x + colWidth / 4}" y="${245}" font-size="8" text-anchor="middle" fill="currentColor" class="font-bold rotate-12">${l.toString().substring(0, 10)}</text>
+                    `;
+                });
+
+                // Structural grid lines
+                svgMarkup += `
+                    <line x1="${padLeft}" y1="30" x2="${padLeft}" y2="${30 + height}" stroke="currentColor" opacity="0.2" />
+                    <line x1="${padLeft}" y1="${30 + height}" x2="${padLeft + width}" y2="${30 + height}" stroke="currentColor" opacity="0.2" />
+                `;
+            }
+
+            svgMarkup += `</svg>`;
+            container.innerHTML = svgMarkup;
+        }
+
+        // Dynamic Chart.js plotter
+        function generateDynamicChart() {
+            try {
+                // Boundary check: If tab is currently hidden, skip execution
+                const visualPanel = document.getElementById('panel-visualize');
+                if (visualPanel && visualPanel.classList.contains('hidden')) {
+                    return; 
+                }
+
+                const chartType = document.getElementById('chartTypeSelect').value;
+                const xCol = document.getElementById('xAxisSelect').value;
+                const yCol = document.getElementById('yAxisSelect').value;
+                const maxRows = parseInt(document.getElementById('chartMaxRows').value) || 100;
+
+                const indicatorBadge = document.getElementById('chartTypeIndicatorBadge');
+
+                if (!xCol || !columnsProfile[xCol]) {
+                    return;
+                }
+
+                // If ChartJS failed to load from CDN, activate high-performance responsive inline fallback SVG plots
+                if (typeof Chart === 'undefined') {
+                    if (indicatorBadge) {
+                        indicatorBadge.textContent = "SVG Offline Engine";
+                        indicatorBadge.className = "px-2.5 py-1 text-[10px] font-bold bg-amber-50 text-amber-700 rounded-full dark:bg-amber-950/40 dark:text-amber-400 uppercase tracking-wide";
+                    }
+                    renderFallbackSvgChart(chartType, xCol, yCol, maxRows);
+                    return;
+                }
+
+                // Restoring typical canvas layout
+                const canvas = document.getElementById('edaMainCanvas');
+                const fallbackContainer = document.getElementById('edaSvgFallbackContainer');
+                
+                if (canvas && fallbackContainer) {
+                    canvas.style.display = 'block';
+                    fallbackContainer.classList.add('hidden');
+                }
+
+                if (indicatorBadge) {
+                    indicatorBadge.textContent = "ChartJS Engine";
+                    indicatorBadge.className = "px-2.5 py-1 text-[10px] font-bold bg-indigo-50 text-indigo-700 rounded-full dark:bg-indigo-950/40 dark:text-indigo-400 uppercase tracking-wide";
+                }
+
+                const canvasEl = document.getElementById('edaMainCanvas');
+                const ctx = canvasEl?.getContext('2d');
+                if (!ctx) return;
+
+                if (activeChart) {
+                    activeChart.destroy();
+                    activeChart = null;
+                }
+
+                const sampledData = csvRawData.slice(0, maxRows);
+
+                let chartData = {
+                    labels: [],
+                    datasets: []
+                };
+
+                let options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: chartType === 'doughnut',
+                            labels: {
+                                color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#334155',
+                                font: { family: 'Inter', weight: 'bold', size: 10 }
+                            }
+                        },
+                        tooltip: {
+                            padding: 10,
+                            cornerRadius: 8,
+                            titleFont: { family: 'Inter', size: 11, weight: 'bold' },
+                            bodyFont: { family: 'Inter', size: 11 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: document.documentElement.classList.contains('dark') ? '#1e293b' : '#f1f5f9' },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b',
+                                font: { family: 'Inter', size: 9, weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            grid: { color: document.documentElement.classList.contains('dark') ? '#1e293b' : '#f1f5f9' },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b',
+                                font: { family: 'Inter', size: 9, weight: 'bold' }
+                            }
+                        }
+                    }
+                };
+
+                if (chartType === "scatter") {
+                    const points = [];
+                    sampledData.forEach(row => {
+                        if (!row) return;
+                        const xNum = parseFloat(row[xCol]);
+                        const yNum = yCol ? parseFloat(row[yCol]) : 1;
+                        if (!isNaN(xNum) && !isNaN(yNum)) {
+                            points.push({ x: xNum, y: yNum });
+                        }
+                    });
+
+                    chartData.datasets.push({
+                        label: `${yCol || 'Count'} vs ${xCol}`,
+                        data: points,
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: '#2563eb',
+                        borderWidth: 1.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    });
+
+                    options.scales.x.type = 'linear';
+                    options.scales.x.position = 'bottom';
+                    options.scales.x.title = {
+                        display: true,
+                        text: xCol,
+                        color: '#64748b',
+                        font: { family: 'Inter', size: 10, weight: 'bold' }
+                    };
+                    options.scales.y.title = {
+                        display: true,
+                        text: yCol || 'Frequencies',
+                        color: '#64748b',
+                        font: { family: 'Inter', size: 10, weight: 'bold' }
+                    };
+
+                } else if (chartType === "doughnut") {
+                    const freqMap = columnsProfile[xCol]?.frequencies || {};
+                    const sortedLabels = Object.keys(freqMap).sort((a, b) => freqMap[b] - freqMap[a]).slice(0, 8);
+                    const values = sortedLabels.map(l => freqMap[l]);
+
+                    chartData.labels = sortedLabels;
+                    chartData.datasets.push({
+                        data: values,
+                        backgroundColor: [
+                            '#3b82f6', '#4f46e5', '#8b5cf6', '#ec4899', 
+                            '#f59e0b', '#10b981', '#14b8a6', '#06b6d4'
+                        ],
+                        borderWidth: 2,
+                        borderColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff'
+                    });
+
+                    delete options.scales;
+
+                } else if (!yCol || yCol === xCol) {
+                    const freqMap = columnsProfile[xCol]?.frequencies || {};
+                    const sortedLabels = Object.keys(freqMap).sort((a, b) => freqMap[b] - freqMap[a]).slice(0, 15);
+                    const values = sortedLabels.map(l => freqMap[l]);
+
+                    chartData.labels = sortedLabels;
+                    chartData.datasets.push({
+                        label: 'Observations count',
+                        data: values,
+                        backgroundColor: 'rgba(79, 70, 229, 0.65)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    });
+
+                } else {
+                    const groups = {};
+                    sampledData.forEach(row => {
+                        if (!row) return;
+                        const xVal = row[xCol];
+                        const yVal = parseFloat(row[yCol]);
+                        if (xVal !== undefined && xVal !== null && !isNaN(yVal)) {
+                            if (!groups[xVal]) {
+                                groups[xVal] = { sum: 0, count: 0 };
+                            }
+                            groups[xVal].sum += yVal;
+                            groups[xVal].count += 1;
+                        }
+                    });
+
+                    const labels = Object.keys(groups).slice(0, 15);
+                    const means = labels.map(l => {
+                        const cnt = groups[l].count;
+                        return cnt > 0 ? (groups[l].sum / cnt).toFixed(2) : 0;
+                    });
+
+                    chartData.labels = labels;
+                    chartData.datasets.push({
+                        label: `Mean of ${yCol}`,
+                        data: means,
+                        backgroundColor: chartType === 'line' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(37, 99, 235, 0.65)',
+                        borderColor: '#2563eb',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        borderRadius: 6
+                    });
+                }
+
+                activeChart = new Chart(ctx, {
+                    type: chartType === 'doughnut' ? 'doughnut' : (chartType === 'scatter' ? 'scatter' : (chartType === 'line' ? 'line' : 'bar')),
+                    data: chartData,
+                    options: options
+                });
+
+            } catch (err) {
+                console.error("Failed to build ChartJS layout cleanly: ", err);
+            }
+        }
+
+        // Heatmap rendering logic
+        function renderCorrelationMatrix() {
+            try {
+                const container = document.getElementById('correlationGridContainer');
+                if (!container) return;
+                container.innerHTML = "";
+
+                const numericCols = csvHeaders.filter(col => 
+                    columnsProfile[col] && 
+                    columnsProfile[col].type === "Numeric" && 
+                    columnsProfile[col].rawNumbers && 
+                    columnsProfile[col].rawNumbers.length > 1
+                );
+
+                if (numericCols.length < 2) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-slate-500 dark:text-slate-400 text-xs">
+                            <svg class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <strong>Insufficient Variables:</strong> At least 2 numeric columns with data variance are required to construct a Pearson correlation grid.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const table = document.createElement('table');
+                table.className = "text-center text-xs font-semibold border-collapse mx-auto";
+
+                const trHead = document.createElement('tr');
+                trHead.appendChild(document.createElement('th')); 
+
+                numericCols.forEach(col => {
+                    const th = document.createElement('th');
+                    th.className = "p-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 truncate max-w-[80px]";
+                    th.textContent = col;
+                    trHead.appendChild(th);
+                });
+                table.appendChild(trHead);
+
+                const cacheMeans = {};
+                const cacheDiffsSq = {};
+
+                numericCols.forEach(col => {
+                    const vals = columnsProfile[col].rawNumbers;
+                    const sum = vals.reduce((a, b) => a + b, 0);
+                    const mean = vals.length > 0 ? (sum / vals.length) : 0;
+                    cacheMeans[col] = mean;
+
+                    const diffsSq = vals.map(v => Math.pow(v - mean, 2));
+                    cacheDiffsSq[col] = diffsSq.reduce((a, b) => a + b, 0);
+                });
+
+                numericCols.forEach(rowCol => {
+                    const tr = document.createElement('tr');
+
+                    const tdLabel = document.createElement('td');
+                    tdLabel.className = "p-2 font-bold text-slate-500 dark:text-slate-400 text-right pr-4 truncate max-w-[100px]";
+                    tdLabel.textContent = rowCol;
+                    tr.appendChild(tdLabel);
+
+                    numericCols.forEach(colCol => {
+                        const td = document.createElement('td');
+                        td.className = "p-3 border border-slate-200 dark:border-slate-800 transition duration-150 cursor-pointer relative group";
+
+                        let r = 0;
+                        if (rowCol === colCol) {
+                            r = 1.0;
+                        } else {
+                            const xVals = columnsProfile[rowCol].rawNumbers;
+                            const yVals = columnsProfile[colCol].rawNumbers;
+                            const limitSize = Math.min(xVals.length, yVals.length);
+
+                            if (limitSize > 1) {
+                                let sumProductDiff = 0;
+                                const meanX = cacheMeans[rowCol];
+                                const meanY = cacheMeans[colCol];
+
+                                for (let i = 0; i < limitSize; i++) {
+                                    sumProductDiff += (xVals[i] - meanX) * (yVals[i] - meanY);
+                                }
+
+                                const denom = Math.sqrt(cacheDiffsSq[rowCol] * cacheDiffsSq[colCol]);
+                                r = denom !== 0 ? (sumProductDiff / denom) : 0;
+                            }
+                        }
+
+                        const rFormatted = isNaN(r) ? "0.00" : r.toFixed(2);
+                        const parsedR = parseFloat(rFormatted);
+
+                        let customBg = "";
+                        if (parsedR > 0.05) {
+                            customBg = `rgba(16, 185, 129, ${parsedR})`;
+                        } else if (parsedR < -0.05) {
+                            customBg = `rgba(244, 63, 94, ${Math.abs(parsedR)})`;
+                        } else {
+                            customBg = `rgba(148, 163, 184, 0.1)`;
+                        }
+
+                        td.style.backgroundColor = customBg;
+                        td.innerHTML = `
+                            <span class="font-bold font-mono text-slate-900 dark:text-white drop-shadow-sm">${rFormatted}</span>
+                            <span class="absolute z-30 scale-0 group-hover:scale-100 bg-slate-950 text-white dark:bg-white dark:text-slate-950 px-2 py-1.5 rounded-lg font-sans text-[9px] -top-10 left-1/2 transform -translate-x-1/2 transition-all shadow-md font-bold whitespace-nowrap pointer-events-none">
+                                ${rowCol} & ${colCol}: ${rFormatted}
+                            </span>
+                        `;
+                        tr.appendChild(td);
+                    });
+
+                    table.appendChild(tr);
+                });
+
+                table.appendChild(tr);
+            } catch (err) {
+                console.error("Heatmap calculations broke: ", err);
+            }
+        }
+
+        // Data Explorer view setups
+        function initializeRawDataTable() {
+            tableCurrentPage = 1;
+            renderRawTableRows();
+        }
+
+        function renderRawTableRows() {
+            try {
+                const head = document.getElementById('rawTableHead');
+                const body = document.getElementById('rawTableBody');
+
+                if (!head || !body) return;
+
+                head.innerHTML = "";
+                body.innerHTML = "";
+
+                const trHead = document.createElement('tr');
+                csvHeaders.forEach(col => {
+                    const th = document.createElement('th');
+                    th.className = "p-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap";
+                    th.textContent = col;
+                    trHead.appendChild(th);
+                });
+                head.appendChild(trHead);
+
+                const startIdx = (tableCurrentPage - 1) * tablePageSize;
+                const endIdx = startIdx + tablePageSize;
+                const pageSlice = filteredData.slice(startIdx, endIdx);
+
+                document.getElementById('tableRangeSpan').textContent = `${filteredData.length > 0 ? startIdx + 1 : 0}-${Math.min(endIdx, filteredData.length)} of ${filteredData.length}`;
+
+                if (pageSlice.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="${csvHeaders.length}" class="p-8 text-center text-slate-400 dark:text-slate-500 text-xs font-semibold">No records found matching search queries.</td>`;
+                    body.appendChild(tr);
+                    return;
+                }
+
+                pageSlice.forEach(row => {
+                    if (!row) return;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition duration-150 text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/50";
+
+                    csvHeaders.forEach(col => {
+                        const td = document.createElement('td');
+                        td.className = "p-3 truncate max-w-[200px] text-xs font-semibold";
+                        const cellVal = row[col];
+                        td.textContent = (cellVal !== undefined && cellVal !== null) ? cellVal : "";
+                        tr.appendChild(td);
+                    });
+
+                    body.appendChild(tr);
+                });
+
+                const totalPages = Math.ceil(filteredData.length / tablePageSize) || 1;
+                document.getElementById('currentPageSpan').textContent = `Page ${tableCurrentPage} of ${totalPages}`;
+                document.getElementById('prevPageBtn').disabled = tableCurrentPage === 1;
+                document.getElementById('nextPageBtn').disabled = tableCurrentPage === totalPages;
+            } catch (err) {
+                console.error("Data view renderer failed: ", err);
+            }
+        }
+
+        function handleTableSearch() {
+            const term = document.getElementById('tableSearchInput').value.toLowerCase().trim();
+
+            if (!term) {
+                filteredData = [...csvRawData];
+            } else {
+                filteredData = csvRawData.filter(row => {
+                    if (!row) return false;
+                    return csvHeaders.some(col => {
+                        const cellStr = String(row[col] || '').toLowerCase();
+                        return cellStr.includes(term);
+                    });
+                });
+            }
+
+            tableCurrentPage = 1;
+            renderRawTableRows();
+        }
+
+        function handleTablePageSizeChange() {
+            tablePageSize = parseInt(document.getElementById('tablePageSizeSelect').value);
+            tableCurrentPage = 1;
+            renderRawTableRows();
+        }
+
+        function handlePrevPage() {
+            if (tableCurrentPage > 1) {
+                tableCurrentPage--;
+                renderRawTableRows();
+            }
+        }
+
+        function handleNextPage() {
+            const totalPages = Math.ceil(filteredData.length / tablePageSize) || 1;
+            if (tableCurrentPage < totalPages) {
+                tableCurrentPage++;
+                renderRawTableRows();
+            }
+        }
+
+        // Auto diagnostic checks checklist
+        function renderDiagnosticsChecklist() {
+            try {
+                const container = document.getElementById('diagnosticChecklistContainer');
+                if (!container) return;
+                container.innerHTML = "";
+
+                const diagnostics = [];
+
+                if (csvRawData.length < 20) {
+                    diagnostics.push({
+                        type: 'warning',
+                        title: 'Minimal Dataset Dimensions',
+                        desc: 'The dataset has fewer than 20 total observations. Statistical variance limits might generate overfitting patterns.'
+                    });
+                }
+
+                csvHeaders.forEach(col => {
+                    const profile = columnsProfile[col];
+                    if (profile && profile.type === "Categorical" && profile.cardinality > 25) {
+                        diagnostics.push({
+                            type: 'info',
+                            title: `High Cardinality Warning: [${col}]`,
+                            desc: `Categorical feature has ${profile.cardinality} distinct classes. Consider binning values to prevent computational sparsity.`
+                        });
+                    }
+                });
+
+                const numericCols = csvHeaders.filter(col => 
+                    columnsProfile[col] && 
+                    columnsProfile[col].type === "Numeric" && 
+                    columnsProfile[col].rawNumbers && 
+                    columnsProfile[col].rawNumbers.length > 1
+                );
+
+                for (let i = 0; i < numericCols.length; i++) {
+                    for (let j = i + 1; j < numericCols.length; j++) {
+                        const colA = numericCols[i];
+                        const colB = numericCols[j];
+
+                        const xVals = columnsProfile[colA].rawNumbers;
+                        const yVals = columnsProfile[colB].rawNumbers;
+                        const limitSize = Math.min(xVals.length, yVals.length);
+
+                        if (limitSize > 1) {
+                            let sumDiff = 0;
+                            let meanA = xVals.reduce((a,b)=>a+b, 0) / xVals.length;
+                            let meanB = yVals.reduce((a,b)=>a+b, 0) / yVals.length;
+
+                            for (let k = 0; k < limitSize; k++) {
+                                sumDiff += (xVals[k] - meanA) * (yVals[k] - meanB);
+                            }
+
+                            const sumSqDiffA = xVals.map(v => Math.pow(v - meanA, 2)).reduce((a,b)=>a+b, 0);
+                            const sumSqDiffB = yVals.map(v => Math.pow(v - meanB, 2)).reduce((a,b)=>a+b, 0);
+
+                            const denom = Math.sqrt(sumSqDiffA * sumSqDiffB);
+                            const r = denom !== 0 ? (sumDiff / denom) : 0;
+
+                            if (Math.abs(r) > 0.85) {
+                                diagnostics.push({
+                                    type: 'warning',
+                                    title: `High Multicollinearity detected: [${colA}] & [${colB}]`,
+                                    desc: `Strong linear dependence observed ($r = ${r.toFixed(2)}$). Training both in linear regression models might distort variable influence indices.`
+                                });
+                            }
+                        }
+                    }
+                }
+
+                csvHeaders.forEach(col => {
+                    const profile = columnsProfile[col];
+                    if (profile && profile.totalCount > 0) {
+                        const rate = ((profile.nullCount / profile.totalCount) * 100).toFixed(1);
+                        if (profile.nullCount > 0 && parseFloat(rate) > 10.0) {
+                            diagnostics.push({
+                                type: 'danger',
+                                title: `Missing Value Density: [${col}]`,
+                                desc: `${rate}% of values are null. Machine learning algorithms may fail. Imputation is highly recommended.`
+                            });
+                        }
+                    }
+                });
+
+                csvHeaders.forEach(col => {
+                    const profile = columnsProfile[col];
+                    if (profile && profile.cardinality <= 1) {
+                        diagnostics.push({
+                            type: 'danger',
+                            title: `Zero Variance Variable: [${col}]`,
+                            desc: `Contains only ${profile.cardinality} distinct values. Yields no predictive information for statistical calculations.`
+                        });
+                    }
+                });
+
+                if (diagnostics.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex items-center p-6 bg-emerald-50 text-emerald-800 rounded-2xl dark:bg-emerald-950/20 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/50">
+                            <svg class="w-6 h-6 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Dataset is fully optimized! No structural modeling anomalies or missing data bottlenecks found.
+                        </div>
+                    `;
+                    return;
+                }
+
+                diagnostics.forEach(diag => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-start py-4 gap-4";
+
+                    let statusBadge = "";
+                    if (diag.type === 'danger') {
+                        statusBadge = `<div class="bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400 p-2 rounded-xl flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>`;
+                    } else if (diag.type === 'warning') {
+                        statusBadge = `<div class="bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400 p-2 rounded-xl flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>`;
+                    } else {
+                        statusBadge = `<div class="bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400 p-2 rounded-xl flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>`;
+                    }
+
+                    div.innerHTML = `
+                        ${statusBadge}
+                        <div>
+                            <h5 class="text-sm font-bold text-slate-900 dark:text-white">${diag.title}</h5>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">${diag.desc}</p>
+                        </div>
+                    `;
+
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Diagnostics compiler broke: ", err);
+            }
+        }
+
+        // Workspace section Tab navigator switches
+        function switchTab(targetTabId) {
+            activeTab = targetTabId;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all";
+            });
+
+            const activeBtn = document.getElementById(`tab-${targetTabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn border-brand-500 text-brand-600 dark:text-brand-400 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-all";
+            }
+
+            document.querySelectorAll('.panel-content').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            const activePanel = document.getElementById(`panel-${targetTabId}`);
+            if (activePanel) {
+                activePanel.classList.remove('hidden');
+            }
+
+            // Lazy load visual components when tabs become active
+            if (targetTabId === 'visualize') {
+                generateDynamicChart();
+            } else if (targetTabId === 'correlation') {
+                renderCorrelationMatrix();
+            }
+        }
+
+        // Return workspace back to file upload interface
+        function resetWorkspace() {
+            csvRawData = [];
+            csvHeaders = [];
+            columnsProfile = {};
+            filteredData = [];
+            dismissCriticalError();
+            
+            const fileInput = document.getElementById('csvFileInput');
+            if (fileInput) fileInput.value = "";
+            
+            document.getElementById('workspaceSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
